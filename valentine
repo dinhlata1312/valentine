@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>💌 Valentine của em bé Mắm</title>
+
+  <style>
+    :root{
+      --pink:#ff4fa3;
+      --pink2:#ff86c7;
+      --black:#0b0b0f;
+      --white:#ffffff;
+      --card: rgba(255,255,255,.9);
+      --shadow: 0 22px 70px rgba(0,0,0,.28);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      font-family: ui-rounded, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--black);
+      background:
+        radial-gradient(900px 520px at 25% 15%, rgba(255,255,255,.86), transparent 58%),
+        radial-gradient(700px 500px at 80% 30%, rgba(255,79,163,.25), transparent 55%),
+        linear-gradient(135deg, #ffd2ea 0%, #ff8fca 45%, #1a0f18 120%);
+      overflow:hidden;
+    }
+
+    canvas#fx{position:fixed; inset:0; pointer-events:none}
+
+    .wrap{width:min(820px,92vw); position:relative}
+    .card{
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.55);
+      border-radius:26px;
+      box-shadow: var(--shadow);
+      padding:28px 22px;
+      backdrop-filter: blur(10px);
+      position:relative;
+      overflow:hidden;
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(90deg, rgba(255,79,163,.55), rgba(11,11,15,.35), rgba(255,134,199,.55));
+      filter: blur(14px);
+      opacity:.55;
+      z-index:0;
+    }
+    .card > *{position:relative; z-index:1}
+
+    h1{margin:0 0 8px; font-size:clamp(22px,4vw,34px)}
+    p{margin:10px 0; line-height:1.65; font-size:clamp(15px,2.3vw,18px)}
+    .small{font-size:14px; opacity:.88}
+
+    .center{display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:16px}
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+
+    button{
+      border:0; padding:12px 16px; border-radius:999px;
+      font-size:16px; cursor:pointer;
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    button:hover{filter: brightness(1.02)}
+    button:active{transform: scale(.98)}
+
+    .primary{
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      color:#fff;
+      box-shadow: 0 12px 26px rgba(255,79,163,.35);
+    }
+    .ghost{
+      background: rgba(11,11,15,.92);
+      color:#fff;
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+
+    input{
+      width:min(360px, 100%);
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(11,11,15,.12);
+      outline:none;
+      font-size:16px;
+      background:rgba(255,255,255,.95);
+    }
+    input:focus{border-color: rgba(255,79,163,.55); box-shadow: 0 0 0 4px rgba(255,79,163,.15)}
+
+    .pill{
+      display:inline-flex; gap:8px; align-items:center; justify-content:center;
+      padding:8px 12px; border-radius:999px;
+      background: rgba(11,11,15,.88);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.18);
+      font-size:14px;
+    }
+
+    /* envelope */
+    .intro{display:grid; gap:10px; text-align:center; padding:26px 18px}
+    .envelope{
+      width:128px; height:90px; margin:0 auto 10px;
+      position:relative;
+      filter: drop-shadow(0 12px 22px rgba(0,0,0,.22));
+    }
+    .env-back{
+      position:absolute; inset:0;
+      background: rgba(255,255,255,.95);
+      border-radius:16px;
+      border:1px solid rgba(11,11,15,.10);
+    }
+    .env-flap{
+      position:absolute; left:0; right:0; top:-1px; height:60px;
+      background: linear-gradient(180deg, rgba(255,79,163,.95), rgba(255,134,199,.85));
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      border-radius:16px 16px 0 0;
+      transform-origin:50% 0%;
+      transition: transform .7s cubic-bezier(.2,.8,.2,1);
+    }
+    .env-heart{
+      position:absolute; left:50%; top:52%;
+      transform: translate(-50%,-35%);
+      width:24px; height:24px; background:var(--pink);
+      rotate:45deg; border-radius:7px;
+      box-shadow: 0 10px 20px rgba(255,79,163,.25);
+    }
+    .env-heart:before,.env-heart:after{
+      content:""; position:absolute; width:24px; height:24px; background:var(--pink);
+      border-radius:50%;
+    }
+    .env-heart:before{left:-12px; top:0}
+    .env-heart:after{left:0; top:-12px}
+    .opened .env-flap{transform: rotateX(180deg)}
+
+    /* hearts */
+    .heart{
+      position:absolute; width:10px; height:10px; background:rgba(255,79,163,.88);
+      rotate:45deg; border-radius:3px;
+      animation: floatUp linear forwards;
+      pointer-events:none;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.12));
+    }
+    .heart:before,.heart:after{
+      content:""; position:absolute; width:10px; height:10px; background:inherit; border-radius:50%;
+    }
+    .heart:before{left:-5px; top:0}
+    .heart:after{left:0; top:-5px}
+    @keyframes floatUp{
+      from{transform: translateY(0) rotate(0deg); opacity:1}
+      to{transform: translateY(-120vh) rotate(220deg); opacity:0}
+    }
+
+    .type{white-space:pre-wrap}
+    .sig{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:18px;
+      background: rgba(11,11,15,.06);
+      border:1px dashed rgba(11,11,15,.12);
+    }
+    .sig b{color:var(--pink)}
+    .hidden{display:none !important}
+
+    .big-emoji{font-size:28px}
+
+    /* ====== PHOTO (mam.png) ====== */
+    .photoWrap{
+      width:min(360px, 92%);
+      margin: 12px auto 6px;
+      border-radius:22px;
+      overflow:hidden;
+      border:2px solid rgba(11,11,15,.12);
+      box-shadow: 0 18px 40px rgba(0,0,0,.18);
+      position:relative;
+    }
+    .photoWrap:after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(600px 240px at 50% 0%, rgba(255,79,163,.22), transparent 55%);
+      pointer-events:none;
+    }
+    .photoWrap img{
+      width:100%; height:auto; display:block;
+      transform: scale(1.01);
+    }
+    .photoCap{
+      margin-top:8px;
+      font-size:14px;
+      opacity:.9;
+    }
+
+    /* ====== MUSIC WIDGET ====== */
+    .music{
+      position:fixed;
+      right:14px; bottom:14px;
+      background: rgba(11,11,15,.86);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;
+      padding:10px 12px;
+      display:flex; gap:10px; align-items:center;
+      box-shadow: 0 18px 40px rgba(0,0,0,.25);
+      backdrop-filter: blur(8px);
+      z-index:9999;
+      max-width:min(92vw, 420px);
+    }
+    .music b{color: var(--pink2)}
+    .music .btn{
+      padding:10px 12px;
+      border-radius:999px;
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      color:#fff;
+      font-weight:700;
+    }
+    .music .mini{
+      font-size:13px;
+      opacity:.9;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="fx"></canvas>
+
+  <!-- 🎵 Nhạc: đặt file ai-ngoai-anh.mp3 cùng thư mục -->
+  <audio id="bgm" src="ai-ngoai-anh.mp3" preload="auto" loop></audio>
+
+  <div class="music" id="musicWidget">
+    <button class="btn" id="musicBtn">▶ Bật nhạc</button>
+    <div class="mini">🎵 <b>Ai Ngoài Anh</b> • (nhấn để phát)</div>
+  </div>
+
+  <div class="wrap" id="app"></div>
+
+  <script>
+    // ===================== CONFIG =====================
+    const SENDER_NAME   = "Lê Võ Tấn Phú";
+    const RECEIVER_OFFICIAL = "Đoàn Ngọc Bảo Chân"; // default / gợi ý
+
+    const MAIN_LETTER =
+`Bảo Chân ơi… em bé Mắm ơi 🖤💗
+
+Hôm nay Valentine, anh muốn nói một điều thiệt dễ thương:
+Cảm ơn em vì đã xuất hiện.
+Vì em làm anh vui,
+và vì em khiến mấy ngày bình thường cũng thành đặc biệt.
+
+Nếu được chọn lại, anh vẫn chọn em.
+Chọn em bé Mắm. Chọn yêu em.
+
+Nên là… em đồng ý cho anh được thương em nhiều hơn nữa nha? 💗`;
+
+    // Tab mới #1 (lời chúc)
+    function buildWishText(name){
+      return `Chúc em bé của anh ngày Valentine vui vẻ nha 💗🖤
+
+Mong em sẽ mãi luôn tươi cười,
+không phải buồn nữa.
+Anh muốn em bé Mắm của anh lúc nào cũng được bình yên và được thương thật nhiều.
+
+(Trái tim này ký tên: ❤️❤️❤️)
+
+Yêu em bé nhiều lắm, ${name || RECEIVER_OFFICIAL} 🥺💞`;
+    }
+
+    // Tab mới #2 (câu chốt “đặt phòng”)
+    function buildBookText(name){
+      return `Em bé ${name || RECEIVER_OFFICIAL} ơi… 😼🖤💗
+
+Tối anh đặt phòng nghen -)))))))
+
+(Em bé chỉ cần gật đầu là anh đặt liền 😚)
+
+❤️❤️❤️`;
+    }
+
+    // ===================== MUSIC =====================
+    const bgm = document.getElementById("bgm");
+    const musicBtn = document.getElementById("musicBtn");
+    let playing = false;
+
+    async function toggleMusic(){
+      try{
+        if(!playing){
+          await bgm.play();           // cần click người dùng -> OK
+          playing = true;
+          musicBtn.textContent = "⏸ Tắt nhạc";
+        }else{
+          bgm.pause();
+          playing = false;
+          musicBtn.textContent = "▶ Bật nhạc";
+        }
+      }catch(e){
+        alert("Không phát được nhạc 😭\nBạn nhớ đặt file 'ai-ngoai-anh.mp3' cùng thư mục với index.html nha.");
+      }
+    }
+    musicBtn.onclick = toggleMusic;
+
+    // (Nếu file nhạc lỗi)
+    bgm.addEventListener("error", () => {
+      // không spam alert, chỉ đổi chữ
+      document.querySelector("#musicWidget .mini").textContent =
+        "⚠️ Chưa thấy ai-ngoai-anh.mp3 (đặt file nhạc vào cùng thư mục)";
+    });
+
+    // helper: tự thử phát khi người dùng click (mở thư / đồng ý) nếu chưa bật
+    async function tryAutoPlayOnGesture(){
+      if(playing) return;
+      try{
+        await bgm.play();
+        playing = true;
+        musicBtn.textContent = "⏸ Tắt nhạc";
+      }catch(_){}
+    }
+
+    // ===================== HELPERS =====================
+    const app = document.getElementById("app");
+    function esc(s){
+      return (s ?? "").replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+    }
+    function openNewTabOrFallback(url){
+      const w = window.open(url, "_blank", "noopener,noreferrer");
+      if(!w) location.href = url;
+    }
+
+    // ===================== HEARTS BACKGROUND =====================
+    let heartsOn = false, heartsTimer = null;
+    function spawnHeart(){
+      const h = document.createElement("div");
+      h.className = "heart";
+      const size = 8 + Math.random()*14;
+      h.style.width = size+"px";
+      h.style.height = size+"px";
+      h.style.left = (Math.random()*100)+"vw";
+      h.style.bottom = (-20)+"px";
+      h.style.opacity = (0.55 + Math.random()*0.45).toFixed(2);
+      h.style.animationDuration = (3 + Math.random()*4)+"s";
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(), 8000);
+    }
+    function toggleHearts(btn){
+      heartsOn = !heartsOn;
+      if(heartsOn) heartsTimer = setInterval(spawnHeart, 180);
+      else clearInterval(heartsTimer);
+      if(btn) btn.textContent = heartsOn ? "Dừng thả tim 🫣" : "Thả tim 🫶";
+    }
+
+    // ===================== CONFETTI =====================
+    const canvas = document.getElementById("fx");
+    const ctx = canvas.getContext("2d");
+    function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+    addEventListener("resize", resize); resize();
+
+    function confettiBurst(){
+      const colors = ["#ff4fa3", "#ff86c7", "#0b0b0f", "#ffffff"];
+      const pieces = [];
+      const N = 240;
+      for(let i=0;i<N;i++){
+        pieces.push({
+          x: innerWidth/2,
+          y: innerHeight*0.25,
+          vx: (Math.random()-0.5)*11,
+          vy: (Math.random()-1.15)*12,
+          g: 0.22 + Math.random()*0.12,
+          r: 2 + Math.random()*4,
+          a: 1,
+          rot: Math.random()*Math.PI,
+          vr: (Math.random()-0.5)*0.35,
+          c: colors[(Math.random()*colors.length)|0]
+        });
+      }
+      let last = performance.now();
+      function tick(now){
+        const dt = Math.min(32, now-last);
+        last = now;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for(const p of pieces){
+          p.vy += p.g * (dt/16);
+          p.x  += p.vx * (dt/16);
+          p.y  += p.vy * (dt/16);
+          p.rot += p.vr * (dt/16);
+          p.a  -= 0.006 * (dt/16);
+          if(p.a <= 0) continue;
+          ctx.save();
+          ctx.globalAlpha = p.a;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.c;
+          ctx.fillRect(-p.r, -p.r, p.r*2.2, p.r*2.2);
+          ctx.restore();
+        }
+        if(pieces.some(p=>p.a>0 && p.y<canvas.height+40)) requestAnimationFrame(tick);
+        else ctx.clearRect(0,0,canvas.width,canvas.height);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // ===================== TYPEWRITER =====================
+    function typeText(el, text, speed=18){
+      el.textContent = "";
+      let i = 0;
+      const t = setInterval(() => {
+        el.textContent += text[i++] ?? "";
+        if(i > text.length) clearInterval(t);
+      }, speed);
+    }
+
+    // ===================== ROUTER =====================
+    const params = new URLSearchParams(location.search);
+    const page = params.get("page") || "main";
+    const name = params.get("name") ? decodeURIComponent(params.get("name")) : "";
+
+    function photoBlock(){
+      return `
+        <div class="photoWrap">
+          <img src="mam.png" alt="em bé Mắm" />
+        </div>
+        <div class="photoCap">🐱💗 Em bé bấm vô là tim bay nè…</div>
+      `;
+    }
+
+    function renderMain(){
+      app.innerHTML = `
+        <div id="intro" class="card intro">
+          <div class="envelope" id="env">
+            <div class="env-back"></div>
+            <div class="env-flap"></div>
+            <div class="env-heart"></div>
+          </div>
+
+          <h1>💌 Bảo Chân ơi (em bé Mắm)!</h1>
+          <div class="pill">Nhấp vào để mở bất ngờ ✨</div>
+
+          ${photoBlock()}
+
+          <p class="small" style="margin-top:10px">
+            Người gửi: <b>${esc(SENDER_NAME)}</b> • Người nhận: <b>${esc(RECEIVER_OFFICIAL)}</b>
+          </p>
+
+          <div class="center">
+            <button class="primary" id="openBtn">Mở thư nè 💗</button>
+            <button class="ghost small" id="heartsBtn">Thả tim 🫶</button>
+          </div>
+        </div>
+
+        <div id="letter" class="card hidden">
+          <h1>Gửi em bé Mắm của anh 💞</h1>
+          <p class="type" id="typed"></p>
+
+          <div class="sig">
+            <div><b>Ký tên người gửi:</b> ${esc(SENDER_NAME)}</div>
+            <div><b>Ký tên người nhận:</b> ${esc(RECEIVER_OFFICIAL)}</div>
+          </div>
+
+          <div class="center">
+            <button class="primary" id="yesBtn">Đồng ý làm Valentine của anh 💘</button>
+            <button class="ghost" id="noBtn">Hông 😼</button>
+          </div>
+
+          <p class="small" style="margin-top:14px">
+            (Nút “Hông” mà chạy là tại anh sợ mất em bé đó 😗)
+          </p>
+        </div>
+      `;
+
+      const intro = document.getElementById("intro");
+      const letter = document.getElementById("letter");
+      const env = document.getElementById("env");
+      const typed = document.getElementById("typed");
+      const openBtn = document.getElementById("openBtn");
+      const heartsBtn = document.getElementById("heartsBtn");
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn = document.getElementById("noBtn");
+
+      openBtn.onclick = async () => {
+        await tryAutoPlayOnGesture(); // bấm mở thư là có thể bật nhạc luôn
+        env.classList.add("opened");
+        setTimeout(() => {
+          intro.classList.add("hidden");
+          letter.classList.remove("hidden");
+          typeText(typed, MAIN_LETTER, 18);
+        }, 520);
+      };
+
+      heartsBtn.onclick = () => toggleHearts(heartsBtn);
+
+      yesBtn.onclick = async () => {
+        await tryAutoPlayOnGesture();
+        confettiBurst();
+        yesBtn.textContent = "Yayyy 💘 Tiếp nè em bé!";
+        yesBtn.disabled = true;
+        noBtn.classList.add("hidden");
+
+        const block = document.createElement("div");
+        block.innerHTML = `
+          <hr style="border:none;border-top:1px solid rgba(11,11,15,.10); margin:18px 0">
+          <p class="big-emoji">💗🖤💗</p>
+          <p><b>Em bé nhập tên giúp anh nha</b> (gợi ý: ${esc(RECEIVER_OFFICIAL)})</p>
+          <div class="row">
+            <input id="nameInput" placeholder="${esc(RECEIVER_OFFICIAL)}" />
+            <button class="primary" id="goWish">Mở lời chúc ở tab mới ✨</button>
+          </div>
+          <p class="small">Nếu tab mới không bật, trình duyệt có thể chặn pop-up — bấm lại nút hoặc cho phép pop-up.</p>
+        `;
+        letter.appendChild(block);
+
+        document.getElementById("goWish").onclick = () => {
+          const v = (document.getElementById("nameInput").value || "").trim() || RECEIVER_OFFICIAL;
+          const url = `${location.pathname}?page=wish&name=${encodeURIComponent(v)}`;
+          openNewTabOrFallback(url);
+        };
+      };
+
+      noBtn.onmouseenter = () => {
+        const rect = letter.getBoundingClientRect();
+        const x = Math.random()*(rect.width-120);
+        const y = Math.random()*(rect.height-60);
+        noBtn.style.position = "absolute";
+        noBtn.style.left = x+"px";
+        noBtn.style.top = y+"px";
+      };
+    }
+
+    function renderWish(){
+      const receiverName = (name || "").trim() || RECEIVER_OFFICIAL;
+      app.innerHTML = `
+        <div class="card">
+          <h1>💝 Lời chúc cho em bé Mắm</h1>
+          <div class="pill">Tab mới #1 • Pink 🖤</div>
+
+          ${photoBlock()}
+
+          <p class="type" id="wishText"></p>
+
+          <div class="sig">
+            <div><b>Ký tên người gửi:</b> ${esc(SENDER_NAME)}</div>
+            <div><b>Ký tên người nhận:</b> ${esc(receiverName)}</div>
+          </div>
+
+          <div class="center">
+            <button class="primary" id="boom">Nổ timmmm 💥💗</button>
+            <button class="ghost" id="heartsBtn2">Thả tim 🫶</button>
+          </div>
+
+          <hr style="border:none;border-top:1px solid rgba(11,11,15,.10); margin:18px 0">
+
+          <p><b>Nhập tên em bé lần nữa</b> để mở tab cuối 😼</p>
+          <div class="row">
+            <input id="name2" value="${esc(receiverName)}" />
+            <button class="primary" id="goBook">Mở tab mới (bí mật) 🤫</button>
+          </div>
+
+          <p class="small" style="margin-top:12px">
+            Nếu tab mới không bật, do trình duyệt chặn pop-up.
+          </p>
+        </div>
+      `;
+
+      document.getElementById("wishText").textContent = buildWishText(receiverName);
+
+      document.getElementById("boom").onclick = async () => {
+        await tryAutoPlayOnGesture();
+        confettiBurst();
+      };
+      document.getElementById("heartsBtn2").onclick = (e) => toggleHearts(e.target);
+
+      document.getElementById("goBook").onclick = async () => {
+        await tryAutoPlayOnGesture();
+        const v = (document.getElementById("name2").value || "").trim() || RECEIVER_OFFICIAL;
+        const url = `${location.pathname}?page=book&name=${encodeURIComponent(v)}`;
+        openNewTabOrFallback(url);
+      };
+    }
+
+    function renderBook(){
+      const receiverName = (name || "").trim() || RECEIVER_OFFICIAL;
+      app.innerHTML = `
+        <div class="card">
+          <h1>😼 Bí mật cuối cùng</h1>
+          <div class="pill">Tab mới #2 • Đặt phòng -)))))))</div>
+
+          ${photoBlock()}
+
+          <p class="type" id="bookText"></p>
+
+          <div class="sig">
+            <div><b>Ký tên người gửi:</b> ${esc(SENDER_NAME)}</div>
+            <div><b>Ký tên người nhận:</b> ${esc(receiverName)}</div>
+          </div>
+
+          <div class="center">
+            <button class="primary" id="boom2">Nổ confetti 🎉</button>
+            <button class="ghost" id="heartsBtn3">Thả tim 🫶</button>
+          </div>
+
+          <p class="small" style="margin-top:14px">
+            (Nếu em bé đọc tới đây rồi thì… coi như đồng ý nha 😚)
+          </p>
+        </div>
+      `;
+
+      document.getElementById("bookText").textContent = buildBookText(receiverName);
+      document.getElementById("boom2").onclick = async () => {
+        await tryAutoPlayOnGesture();
+        confettiBurst();
+      };
+      document.getElementById("heartsBtn3").onclick = (e) => toggleHearts(e.target);
+    }
+
+    if(page === "wish") renderWish();
+    else if(page === "book") renderBook();
+    else renderMain();
+  </script>
+</body>
+</html>
